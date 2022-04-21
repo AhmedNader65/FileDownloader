@@ -2,6 +2,7 @@ package com.najwa.task.di
 
 import android.content.Context
 import com.najwa.task.BuildConfig
+import com.najwa.task.data.api.DataApi
 import com.najwa.task.data.api.MockInterceptor
 import dagger.Module
 import dagger.Provides
@@ -70,5 +71,10 @@ class ServiceModule {
     @Named("MockInterceptor")
     fun provideMockInterceptor(@Named("FakeData") fakeData: String): Interceptor =
         MockInterceptor(fakeData)
+
+
+    @Provides
+    @Singleton
+    fun provideDataApi(retrofit: Retrofit): DataApi = retrofit.create(DataApi::class.java)
 
 }
