@@ -2,6 +2,8 @@ package com.najwa.task.di
 
 import android.content.Context
 import com.najwa.task.Utils
+import com.najwa.task.data.api.DataApi
+import com.najwa.task.data.dataSource.DataRemoteDataSource
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -18,6 +20,13 @@ class DataModule {
     @Provides
     @Singleton
     @Named("FakeData")
-    fun provideFakeData(@ApplicationContext context: Context): String = Utils.getJsonFromAssets(context,"getListOfFilesResponse.json")
+    fun provideFakeData(@ApplicationContext context: Context): String =
+        Utils.getJsonFromAssets(context, "getListOfFilesResponse.json")
+
+    @Provides
+    @Singleton
+    fun provideDataRemoteDataSource(
+        dataApi: DataApi,
+    ) = DataRemoteDataSource(dataApi)
 
 }
