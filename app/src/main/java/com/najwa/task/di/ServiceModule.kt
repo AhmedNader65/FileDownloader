@@ -68,5 +68,7 @@ class ServiceModule {
     @Provides
     @Singleton
     @Named("MockInterceptor")
-    fun provideMockInterceptor(): Interceptor = MockInterceptor()
+    fun provideMockInterceptor(@Named("FakeData") fakeData: String): Interceptor =
+        MockInterceptor(fakeData)
+
 }

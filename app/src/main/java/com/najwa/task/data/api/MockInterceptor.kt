@@ -1,16 +1,20 @@
 package com.najwa.task.data.api
 
 import com.najwa.task.BuildConfig
+import com.najwa.task.Utils
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import javax.inject.Inject
 
 private const val SUCCESS_CODE = 200
 
-class MockInterceptor : Interceptor {
+class MockInterceptor @Inject constructor(
+    private val fakeData: String
+) : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
         if (BuildConfig.DEBUG) {
             val uri = chain.request().url.toUri().toString()
-            val responseString = getFakeResponse
+            val responseString = fakeData
 
             return chain.proceed(chain.request())
                 .newBuilder()
@@ -34,9 +38,3 @@ class MockInterceptor : Interceptor {
         }
     }
 }
-
-const val getFakeResponse = """
-{
-   
-}
-"""
