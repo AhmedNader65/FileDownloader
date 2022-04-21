@@ -2,18 +2,21 @@ package com.najwa.task.di
 
 import android.content.Context
 import com.najwa.task.BuildConfig
+import com.najwa.task.data.api.MockInterceptor
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import okhttp3.Cache
+import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
+import javax.inject.Named
 import javax.inject.Singleton
 
 @Module
@@ -29,7 +32,8 @@ class ServiceModule {
     @Singleton
     @Inject
     fun provideOkHttpClient(
-        @ApplicationContext context: Context
+        @ApplicationContext context: Context,
+        @Named("MockInterceptor") dataInterceptor: Interceptor
     ) = if (BuildConfig.DEBUG) {
         val loggingInterceptor = HttpLoggingInterceptor()
         loggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
@@ -37,7 +41,7 @@ class ServiceModule {
             .addInterceptor(loggingInterceptor)
             .readTimeout(60, TimeUnit.SECONDS)
             .connectTimeout(60, TimeUnit.SECONDS)
-//            .addInterceptor(authInterceptor)
+            .addInterceptor(dataInterceptor)
             .writeTimeout(60, TimeUnit.SECONDS)
             .build()
     } else {
@@ -61,4 +65,8 @@ class ServiceModule {
             .client(okHttpClient)
             .build()
 
+    @Provides
+    @Singleton
+    @Named("MockInterceptor")
+    fun provideMockInterceptor(): Interceptor = MockInterceptor()
 }
