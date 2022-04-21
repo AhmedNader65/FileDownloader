@@ -4,6 +4,7 @@ import android.content.Context
 import com.najwa.task.Utils
 import com.najwa.task.data.api.DataApi
 import com.najwa.task.data.dataSource.DataRemoteDataSource
+import com.najwa.task.data.repository.DataRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -28,5 +29,11 @@ class DataModule {
     fun provideDataRemoteDataSource(
         dataApi: DataApi,
     ) = DataRemoteDataSource(dataApi)
+
+    @Provides
+    @Singleton
+    fun provideDataRepository(
+        dataSource: DataRemoteDataSource,
+    ) = DataRepository(dataSource)
 
 }
