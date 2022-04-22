@@ -1,9 +1,6 @@
 package com.najwa.task
 
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import com.najwa.task.model.DownloadStatus
 import com.najwa.task.model.Resource
 import kotlinx.coroutines.flow.Flow
@@ -12,9 +9,6 @@ import okhttp3.ResponseBody
 import retrofit2.Response
 import java.io.*
 
-
-fun ViewGroup.inflater(layoutRes: Int): View =
-    LayoutInflater.from(context).inflate(layoutRes, this, false)
 
 suspend fun <T> getResponse(
     request: suspend () -> Response<T>,

@@ -124,8 +124,10 @@ class MainActivity : AppCompatActivity(), FilesAdapter.OnFileInteract {
 
         // Get URI and MIME type of file
         val uri =
-            FileProvider.getUriForFile(applicationContext,
-                "$packageName.provider", file)
+            FileProvider.getUriForFile(
+                applicationContext,
+                "$packageName.provider", file
+            )
         val mime = contentResolver.getType(uri)
 
         // Open file with user selected app
