@@ -11,12 +11,12 @@ android {
     compileSdk 31
 
     defaultConfig {
-        applicationId "com.najwa.task"
+        applicationId "com.nagwa.task"
         minSdk 29
         targetSdk 31
         versionCode 1
         versionName "1.0"
-        buildConfigField 'String', 'BASE_URL', "\"http://najwa.com/api/\""
+        buildConfigField 'String', 'BASE_URL', "\"http://nagwa.com/api/\""
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
