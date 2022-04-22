@@ -1,12 +1,18 @@
 package com.najwa.task.ui
 
+import android.content.ContentResolver
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
+import android.os.Environment
 import android.util.Log
 import android.view.View.GONE
 import android.view.View.VISIBLE
+import android.webkit.MimeTypeMap
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.FileProvider
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -25,6 +31,7 @@ import java.io.File
 class MainActivity : AppCompatActivity(), FilesAdapter.OnFileInteract {
     private lateinit var adapter: FilesAdapter
     private lateinit var binding: ActivityMainBinding
+    private lateinit var basePath: String
     private val viewModel by viewModels<MainActivityViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -32,6 +39,9 @@ class MainActivity : AppCompatActivity(), FilesAdapter.OnFileInteract {
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        basePath =
+            getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)!!.absolutePath + File.separator
+
         viewModel.fetchData()
         binding.filesList.itemAnimator = null
         collectData()
@@ -46,7 +56,7 @@ class MainActivity : AppCompatActivity(), FilesAdapter.OnFileInteract {
                             binding.loading.visibility = GONE
 
                             it.data?.let { files ->
-                                adapter = FilesAdapter(cacheDir,files, this@MainActivity)
+                                adapter = FilesAdapter(basePath, files, this@MainActivity)
                                 binding.filesList.adapter = adapter
                             }
                         }
@@ -107,12 +117,27 @@ class MainActivity : AppCompatActivity(), FilesAdapter.OnFileInteract {
 
     override fun onDownloadFile(fileModel: FileModel) {
         viewModel.downloadFile2WithFlow(
-            File(
-                cacheDir,
-                fileModel.name + "." + fileModel.url.extension
-            ), fileModel
+            File(basePath + fileModel.name + "." + fileModel.url.extension),
+            fileModel
         )
     }
+
+    override fun onOpenPdfFile(file: File) {
+        val intent = Intent(Intent.ACTION_VIEW)
+        intent.setDataAndType(FileProvider.getUriForFile(applicationContext,
+            "$packageName.provider", file), "application/pdf")
+        intent.flags = Intent.FLAG_ACTIVITY_NO_HISTORY
+        startActivity(intent)
+    }
+
+    override fun onOpenVideoFile(file: File) {
+        val intent = Intent(Intent.ACTION_VIEW)
+        intent.setDataAndType(FileProvider.getUriForFile(applicationContext,
+            "$packageName.provider", file), "video/mp4")
+        intent.flags = Intent.FLAG_ACTIVITY_NO_HISTORY
+        startActivity(intent)
+    }
+
 
 
 }

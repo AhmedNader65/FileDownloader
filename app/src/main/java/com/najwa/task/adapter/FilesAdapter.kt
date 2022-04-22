@@ -15,7 +15,7 @@ import com.najwa.task.model.FileModel
 import java.io.File
 
 class FilesAdapter(
-    private var cacheDir: File,
+    private var basePath: String,
     private var mDataList: ArrayList<FileModel>,
     private val listener: OnFileInteract
 ) :
@@ -39,6 +39,21 @@ class FilesAdapter(
         holder.mBinding.fileDownloadIcon.setOnClickListener {
             if (!file.isCompleted)
                 listener.onDownloadFile(file)
+            else
+                if (file.type == "VIDEO")
+                    listener.onOpenVideoFile(
+                        File(
+                            basePath,
+                            file.name + "." + file.url.extension
+                        )
+                    )
+                else
+                    listener.onOpenPdfFile(
+                        File(
+                            basePath,
+                            file.name + "." + file.url.extension
+                        )
+                    )
         }
         holder.mBinding.progressbar.isVisible = file.isDownloading
         holder.mBinding.downloadedSize.isVisible = file.isDownloading
@@ -66,7 +81,7 @@ class FilesAdapter(
 
     private fun checkIfFileDownloaded(file: FileModel) {
         if (File(
-                cacheDir,
+                basePath,
                 file.name + "." + file.url.extension
             ).exists()
         )
@@ -113,5 +128,7 @@ class FilesAdapter(
 
     interface OnFileInteract {
         fun onDownloadFile(fileModel: FileModel)
+        fun onOpenPdfFile(file: File)
+        fun onOpenVideoFile(file: File)
     }
 }
