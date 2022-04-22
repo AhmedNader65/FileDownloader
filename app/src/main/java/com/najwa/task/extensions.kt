@@ -66,6 +66,9 @@ fun writeResponseBodyToDisk(file: File, body: ResponseBody): Flow<DownloadStatus
                     )
                 }
                 outputStream.flush()
+                emit(
+                    DownloadStatus.Success
+                )
             } catch (e: IOException) {
                 emit(DownloadStatus.Error("File not downloaded"))
             } finally {
@@ -77,6 +80,7 @@ fun writeResponseBodyToDisk(file: File, body: ResponseBody): Flow<DownloadStatus
         }
     }
 }
+
 fun bytesToHumanReadableSize(bytes: Float) = when {
     bytes >= 1 shl 30 -> "%.1f GB".format(bytes / (1 shl 30))
     bytes >= 1 shl 20 -> "%.1f MB".format(bytes / (1 shl 20))

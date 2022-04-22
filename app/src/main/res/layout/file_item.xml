@@ -45,7 +45,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="@dimen/_16sdp"
-            android:src="@drawable/ic_outline_download_for_offline_48"
+            android:src="@drawable/ic_baseline_cloud_download_48"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />

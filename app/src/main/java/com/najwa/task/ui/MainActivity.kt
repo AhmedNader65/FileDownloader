@@ -46,7 +46,7 @@ class MainActivity : AppCompatActivity(), FilesAdapter.OnFileInteract {
                             binding.loading.visibility = GONE
 
                             it.data?.let { files ->
-                                adapter = FilesAdapter(files, this@MainActivity)
+                                adapter = FilesAdapter(cacheDir,files, this@MainActivity)
                                 binding.filesList.adapter = adapter
                             }
                         }
@@ -73,6 +73,12 @@ class MainActivity : AppCompatActivity(), FilesAdapter.OnFileInteract {
                         is DownloadStatus.Success -> {
                             Log.d("Downloading Completed", " done ")
 
+                            downloadStatus.file?.let { fileModel ->
+                                adapter.setDownloaded(
+                                    fileModel,
+                                    true
+                                )
+                            }
                         }
                         is DownloadStatus.Error -> {
                             Log.d("Downloading Error", "error ")

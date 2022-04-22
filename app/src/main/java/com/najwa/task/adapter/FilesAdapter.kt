@@ -10,9 +10,12 @@ import androidx.recyclerview.widget.RecyclerView
 import com.najwa.task.R
 import com.najwa.task.bytesToHumanReadableSize
 import com.najwa.task.databinding.FileItemBinding
+import com.najwa.task.extension
 import com.najwa.task.model.FileModel
+import java.io.File
 
 class FilesAdapter(
+    private var cacheDir: File,
     private var mDataList: ArrayList<FileModel>,
     private val listener: OnFileInteract
 ) :
@@ -30,31 +33,44 @@ class FilesAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
 
         val file = mDataList[position]
-
+        checkIfFileDownloaded(file)
         holder.mBinding.fileName.text = file.name
         holder.mBinding.fileTypeIcon.setImageResource(getTypeIcon(file.type))
         holder.mBinding.fileDownloadIcon.setOnClickListener {
-            listener.onDownloadFile(file)
-
+            if (!file.isCompleted)
+                listener.onDownloadFile(file)
         }
         holder.mBinding.progressbar.isVisible = file.isDownloading
         holder.mBinding.downloadedSize.isVisible = file.isDownloading
         holder.mBinding.fileDownloadIcon.isVisible = !file.isDownloading
-        if (file.length <= 0) {
-            holder.mBinding.downloadedSize.text =
-                bytesToHumanReadableSize(file.downloadedSize.toFloat())
-            holder.mBinding.progressbar.isIndeterminate = true
-        } else {
-            holder.mBinding.downloadedSize.text = context.getString(
-                R.string.downloaded,
-                bytesToHumanReadableSize(file.downloadedSize.toFloat()),
-                bytesToHumanReadableSize(
-                    file.length.toFloat()
+        if (file.isDownloading) {
+            if (file.length <= 0) {
+                holder.mBinding.downloadedSize.text =
+                    bytesToHumanReadableSize(file.downloadedSize.toFloat())
+                holder.mBinding.progressbar.isIndeterminate = true
+            } else {
+                holder.mBinding.downloadedSize.text = context.getString(
+                    R.string.downloaded,
+                    bytesToHumanReadableSize(file.downloadedSize.toFloat()),
+                    bytesToHumanReadableSize(
+                        file.length.toFloat()
+                    )
                 )
-            )
-            holder.mBinding.progressbar.isIndeterminate = false
-            holder.mBinding.progressbar.progress = file.progress()
+                holder.mBinding.progressbar.isIndeterminate = false
+                holder.mBinding.progressbar.progress = file.progress()
+            }
+        } else if (file.isCompleted) {
+            holder.mBinding.fileDownloadIcon.setImageResource(R.drawable.ic_baseline_cloud_done_48)
         }
+    }
+
+    private fun checkIfFileDownloaded(file: FileModel) {
+        if (File(
+                cacheDir,
+                file.name + "." + file.url.extension
+            ).exists()
+        )
+            file.isCompleted = true
     }
 
 
@@ -64,6 +80,12 @@ class FilesAdapter(
 
     fun setDownloading(file: FileModel, isDownloading: Boolean) {
         getFile(file)?.isDownloading = isDownloading
+        notifyItemChanged(mDataList.indexOf(file))
+    }
+
+    fun setDownloaded(file: FileModel, isCompleted: Boolean) {
+        getFile(file)?.isDownloading = false
+        getFile(file)?.isCompleted = isCompleted
         notifyItemChanged(mDataList.indexOf(file))
     }
 
