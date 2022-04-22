@@ -1,14 +1,11 @@
 package com.najwa.task.ui
 
-import android.content.ContentResolver
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
 import android.util.Log
 import android.view.View.GONE
 import android.view.View.VISIBLE
-import android.webkit.MimeTypeMap
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -16,6 +13,7 @@ import androidx.core.content.FileProvider
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.najwa.task.App
 import com.najwa.task.adapter.FilesAdapter
 import com.najwa.task.databinding.ActivityMainBinding
 import com.najwa.task.extension
@@ -122,22 +120,21 @@ class MainActivity : AppCompatActivity(), FilesAdapter.OnFileInteract {
         )
     }
 
-    override fun onOpenPdfFile(file: File) {
-        val intent = Intent(Intent.ACTION_VIEW)
-        intent.setDataAndType(FileProvider.getUriForFile(applicationContext,
-            "$packageName.provider", file), "application/pdf")
-        intent.flags = Intent.FLAG_ACTIVITY_NO_HISTORY
+    override fun openFile(file: File) {
+
+        // Get URI and MIME type of file
+        val uri =
+            FileProvider.getUriForFile(applicationContext,
+                "$packageName.provider", file)
+        val mime = contentResolver.getType(uri)
+
+        // Open file with user selected app
+        val intent = Intent()
+        intent.action = Intent.ACTION_VIEW
+        intent.setDataAndType(uri, mime)
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         startActivity(intent)
     }
-
-    override fun onOpenVideoFile(file: File) {
-        val intent = Intent(Intent.ACTION_VIEW)
-        intent.setDataAndType(FileProvider.getUriForFile(applicationContext,
-            "$packageName.provider", file), "video/mp4")
-        intent.flags = Intent.FLAG_ACTIVITY_NO_HISTORY
-        startActivity(intent)
-    }
-
 
 
 }

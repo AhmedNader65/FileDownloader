@@ -43,20 +43,12 @@ class FilesAdapter(
                     listener.onDownloadFile(file)
                 }
             } else
-                if (file.type == "VIDEO")
-                    listener.onOpenVideoFile(
-                        File(
-                            basePath,
-                            file.name + "." + file.url.extension
-                        )
+                listener.openFile(
+                    File(
+                        basePath,
+                        file.name + "." + file.url.extension
                     )
-                else
-                    listener.onOpenPdfFile(
-                        File(
-                            basePath,
-                            file.name + "." + file.url.extension
-                        )
-                    )
+                )
         }
         holder.mBinding.progressbar.isVisible = file.isDownloading
         holder.mBinding.downloadedSize.isVisible = file.isDownloading
@@ -131,7 +123,6 @@ class FilesAdapter(
 
     interface OnFileInteract {
         fun onDownloadFile(fileModel: FileModel)
-        fun onOpenPdfFile(file: File)
-        fun onOpenVideoFile(file: File)
+        fun openFile(file: File)
     }
 }
