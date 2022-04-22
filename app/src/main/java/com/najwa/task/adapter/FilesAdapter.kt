@@ -37,9 +37,12 @@ class FilesAdapter(
         holder.mBinding.fileName.text = file.name
         holder.mBinding.fileTypeIcon.setImageResource(getTypeIcon(file.type))
         holder.mBinding.fileDownloadIcon.setOnClickListener {
-            if (!file.isCompleted)
-                listener.onDownloadFile(file)
-            else
+            if (!file.isCompleted) {
+                if (!file.isDownloading) {
+                    file.isDownloading = true
+                    listener.onDownloadFile(file)
+                }
+            } else
                 if (file.type == "VIDEO")
                     listener.onOpenVideoFile(
                         File(
