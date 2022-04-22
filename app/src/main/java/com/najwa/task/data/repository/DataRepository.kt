@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import okhttp3.ResponseBody
 import javax.inject.Inject
 
 class DataRepository @Inject constructor(
@@ -32,6 +33,12 @@ class DataRepository @Inject constructor(
                 }
             }
             emit(result)
+        }.flowOn(Dispatchers.IO)
+    }
+
+    suspend fun downloadFile(url: String): Flow<Resource<ResponseBody>> {
+        return flow {
+            emit(dataSource.download(url))
         }.flowOn(Dispatchers.IO)
     }
 

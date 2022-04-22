@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">DownloadTask</string>
+    <string name="downloaded">%1$s/%2$s</string>
+
 </resources>

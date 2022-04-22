@@ -1,25 +1,29 @@
 package com.najwa.task.ui
 
 import android.os.Bundle
+import android.util.Log
 import android.view.View.GONE
 import android.view.View.VISIBLE
-import android.widget.ImageView
-import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import com.najwa.task.R
+import com.najwa.task.adapter.FilesAdapter
 import com.najwa.task.databinding.ActivityMainBinding
+import com.najwa.task.extension
+import com.najwa.task.model.DownloadStatus
+import com.najwa.task.model.FileModel
 import com.najwa.task.model.Status
-import com.najwa.task.withSimpleAdapter
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import java.io.File
+
 
 @AndroidEntryPoint
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), FilesAdapter.OnFileInteract {
+    private lateinit var adapter: FilesAdapter
     private lateinit var binding: ActivityMainBinding
     private val viewModel by viewModels<MainActivityViewModel>()
 
@@ -29,6 +33,7 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         viewModel.fetchData()
+        binding.filesList.itemAnimator = null
         collectData()
     }
 
@@ -40,17 +45,12 @@ class MainActivity : AppCompatActivity() {
                         Status.SUCCESS -> {
                             binding.loading.visibility = GONE
 
-                            it.data?.let { it1 ->
-                                binding.filesList.withSimpleAdapter(it1, R.layout.file_item) {
-                                    val fileName: TextView = itemView.findViewById(R.id.file_name)
-                                    val fileTypeIcon: ImageView = itemView.findViewById(R.id.file_type_icon)
-                                    fileName.text = it.name
-                                    fileTypeIcon.setImageResource(getTypeIcon(it.type))
-                                }
+                            it.data?.let { files ->
+                                adapter = FilesAdapter(files, this@MainActivity)
+                                binding.filesList.adapter = adapter
                             }
                         }
                         Status.LOADING -> {
-
                             binding.loading.visibility = VISIBLE
                         }
                         Status.ERROR -> {
@@ -66,12 +66,47 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
-    }
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.downloading.collect { downloadStatus ->
+                    when (downloadStatus) {
+                        is DownloadStatus.Success -> {
+                            Log.d("Downloading Completed", " done ")
 
-    private fun getTypeIcon(type: String): Int {
-        return when(type) {
-            "VIDEO" -> R.drawable.ic_vid_file
-            else -> R.drawable.ic_pdf_file
+                        }
+                        is DownloadStatus.Error -> {
+                            Log.d("Downloading Error", "error ")
+
+                        }
+                        is DownloadStatus.Progress -> {
+                            downloadStatus.file?.let { fileModel ->
+                                adapter.setDownloading(
+                                    fileModel,
+                                    true
+                                )
+                            }
+                            downloadStatus.file?.let { fileModel ->
+                                adapter.setProgress(
+                                    fileModel,
+                                    downloadStatus.length,
+                                    downloadStatus.downloaded
+                                )
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
+
+    override fun onDownloadFile(fileModel: FileModel) {
+        viewModel.downloadFile2WithFlow(
+            File(
+                cacheDir,
+                fileModel.name + "." + fileModel.url.extension
+            ), fileModel
+        )
+    }
+
+
 }
