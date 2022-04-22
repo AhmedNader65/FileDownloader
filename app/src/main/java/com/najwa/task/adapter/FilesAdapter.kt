@@ -1,10 +1,10 @@
 package com.najwa.task.adapter
 
 import android.content.Context
-import android.os.Bundle
-import android.util.Log
+import android.content.SharedPreferences
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import com.najwa.task.R
@@ -21,9 +21,11 @@ class FilesAdapter(
 ) :
     RecyclerView.Adapter<FilesAdapter.ViewHolder>() {
 
+    private lateinit var preferences: SharedPreferences
     private lateinit var context: Context
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         context = parent.context
+        preferences = context.getSharedPreferences("Files", AppCompatActivity.MODE_PRIVATE)
         val itemBinding =
             FileItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
 
@@ -74,13 +76,18 @@ class FilesAdapter(
         }
     }
 
-    private fun checkIfFileDownloaded(file: FileModel) {
-        if (File(
-                basePath,
-                file.name + "." + file.url.extension
-            ).exists()
+    private fun checkIfFileDownloaded(fileModel: FileModel) {
+        val file = File(
+            basePath,
+            fileModel.name + "." + fileModel.url.extension
         )
-            file.isCompleted = true
+        if (file.exists()&& !fileModel.isDownloading ) {
+            if (preferences.contains(fileModel.name)) {
+                fileModel.isCompleted = true
+            } else {
+                file.delete()
+            }
+        }
     }
 
 

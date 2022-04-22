@@ -4,7 +4,6 @@ data class FileModel(val id: Int, val type: String, val url: String, val name: S
     fun progress(): Int =
         (downloadedSize * 100 / length).toInt()
 
-
     var isDownloading: Boolean = false
     var isCompleted: Boolean = false
     var length: Long = 0
